@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>游戏客服机器人</title>
+    <title>游戏客服机器人 - 调试模式</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -14,7 +14,7 @@
         }
         
         .chat-container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 15px;
             display: flex;
@@ -41,8 +41,14 @@
             font-size: 13px;
         }
         
-        .mode-selector {
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-top: 8px;
+        }
+        
+        .mode-selector {
             display: flex;
             gap: 8px;
         }
@@ -62,6 +68,25 @@
             border-color: #667eea;
             background: #667eea;
             color: white;
+        }
+        
+        .debug-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .debug-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .debug-toggle label {
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
         }
         
         .chat-messages {
@@ -174,6 +199,111 @@
             color: white;
         }
         
+        /* 调试信息样式 */
+        .debug-panel {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+        
+        .debug-panel.collapsed .debug-content {
+            display: none;
+        }
+        
+        .debug-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .debug-header:hover {
+            color: #333;
+        }
+        
+        .debug-toggle-icon {
+            font-size: 10px;
+            transition: transform 0.2s ease;
+        }
+        
+        .debug-panel.collapsed .debug-toggle-icon {
+            transform: rotate(-90deg);
+        }
+        
+        .debug-content {
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        
+        .debug-section {
+            margin-bottom: 12px;
+        }
+        
+        .debug-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .debug-section-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .debug-retrieval-results {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .retrieval-item {
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            border-left: 3px solid #667eea;
+            font-size: 11px;
+        }
+        
+        .retrieval-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .retrieval-score {
+            float: right;
+            font-size: 10px;
+            color: #666;
+            background: #f0f0f0;
+            padding: 1px 5px;
+            border-radius: 10px;
+        }
+        
+        .retrieval-content {
+            color: #444;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+        
+        .debug-prompt {
+            background: #1a1a2e;
+            color: #e0e0e0;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 11px;
+            line-height: 1.5;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
         .chat-input-area {
             background: rgba(255,255,255,0.95);
             border-radius: 0 0 16px 16px;
@@ -246,6 +376,7 @@
         @media (max-width: 600px) {
             .message-content { max-width: 85%; }
             .chat-container { padding: 8px; }
+            .header-row { flex-direction: column; gap: 10px; align-items: flex-start; }
         }
     </style>
 </head>
@@ -254,10 +385,16 @@
         <div class="chat-header">
             <h1>🎮 游戏客服机器人</h1>
             <p>欢迎咨询，我将为您提供专业的游戏客服服务</p>
-            <div class="mode-selector">
-                <button class="mode-btn" data-mode="text">文本检索</button>
-                <button class="mode-btn" data-mode="embedding">向量检索</button>
-                <button class="mode-btn active" data-mode="hybrid">混合检索</button>
+            <div class="header-row">
+                <div class="mode-selector">
+                    <button class="mode-btn" data-mode="text">文本检索</button>
+                    <button class="mode-btn" data-mode="embedding">向量检索</button>
+                    <button class="mode-btn active" data-mode="hybrid">混合检索</button>
+                </div>
+                <label class="debug-toggle">
+                    <input type="checkbox" id="debug-toggle" checked>
+                    <span>调试模式</span>
+                </label>
             </div>
         </div>
         
@@ -266,6 +403,27 @@
                 <div class="avatar">🤖</div>
                 <div class="message-content">
                     您好！我是游戏客服机器人，请问有什么可以帮助您的？
+                    <div class="debug-panel" id="welcome-debug">
+                        <div class="debug-header">
+                            <span>📋 调试信息</span>
+                            <span class="debug-toggle-icon">▶</span>
+                        </div>
+                        <div class="debug-content">
+                            <div class="debug-section">
+                                <div class="debug-section-title">检索结果</div>
+                                <div class="debug-retrieval-results">
+                                    <div class="retrieval-item">
+                                        <span class="retrieval-score">得分: N/A</span>
+                                        <div class="retrieval-content">初始状态，暂无检索结果</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="debug-section">
+                                <div class="debug-section-title">Prompt</div>
+                                <div class="debug-prompt">等待用户提问...</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -283,10 +441,13 @@
         const chatInput = document.getElementById('chat-input');
         const sendBtn = document.getElementById('send-btn');
         const modeBtns = document.querySelectorAll('.mode-btn');
+        const debugToggle = document.getElementById('debug-toggle');
         
         let currentMode = 'hybrid';
         let currentBotMessage = null;
         let currentSuggestedQuestions = [];
+        let currentRetrievalResults = [];
+        let currentPrompt = '';
         
         modeBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -294,6 +455,15 @@
                 btn.classList.add('active');
                 currentMode = btn.dataset.mode;
             });
+        });
+        
+        // 调试面板折叠/展开
+        document.addEventListener('click', (e) => {
+            const header = e.target.closest('.debug-header');
+            if (header) {
+                const panel = header.parentElement;
+                panel.classList.toggle('collapsed');
+            }
         });
         
         async function sendMessage() {
@@ -307,14 +477,14 @@
             const typingIndicator = addMessage('bot', '', true);
             
             try {
-                // 使用流式响应
                 const response = await fetch('/api/chat/stream', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         question: question,
                         mode: currentMode,
-                        top_k: 3
+                        top_k: 3,
+                        debug: debugToggle.checked
                     })
                 });
                 
@@ -330,7 +500,6 @@
                 const decoder = new TextDecoder('utf-8');
                 let buffer = '';
                 
-                // 创建机器人消息容器
                 currentBotMessage = createBotMessageContainer();
                 chatMessages.appendChild(currentBotMessage);
                 const contentElement = currentBotMessage.querySelector('.message-content');
@@ -353,7 +522,6 @@
                                 const data = JSON.parse(dataStr);
                                 
                                 if (data.type === 'info') {
-                                    // 添加检索模式标识
                                     const badge = document.createElement('div');
                                     badge.className = 'retrieval-badge';
                                     let modeText = '文本检索';
@@ -365,8 +533,13 @@
                                     badge.textContent = modeText;
                                     contentElement.insertBefore(badge, contentElement.firstChild);
                                     currentSuggestedQuestions = data.suggested_questions || [];
+                                } else if (data.type === 'retrieval') {
+                                    // 保存检索结果用于调试面板
+                                    currentRetrievalResults = data.results || [];
+                                } else if (data.type === 'prompt') {
+                                    // 保存prompt用于调试面板
+                                    currentPrompt = data.content || '';
                                 } else if (data.type === 'content') {
-                                    // 流式添加内容
                                     contentElement.innerHTML += escapeHtml(data.data).replace(/\n/g, '<br>');
                                 } else if (data.type === 'error') {
                                     contentElement.textContent = `❌ ${data.data}`;
@@ -395,6 +568,12 @@
                     contentElement.appendChild(suggestedDiv);
                 }
                 
+                // 添加调试面板
+                if (debugToggle.checked) {
+                    const debugPanel = createDebugPanel();
+                    contentElement.appendChild(debugPanel);
+                }
+                
             } catch (error) {
                 typingIndicator.remove();
                 addMessage('bot', `❌ 网络错误：${error.message}`);
@@ -402,6 +581,42 @@
             
             sendBtn.disabled = false;
             scrollToBottom();
+        }
+        
+        function createDebugPanel() {
+            const panel = document.createElement('div');
+            panel.className = 'debug-panel';
+            
+            let retrievalHtml = '';
+            if (currentRetrievalResults.length > 0) {
+                retrievalHtml = currentRetrievalResults.map((item, index) => `
+                    <div class="retrieval-item">
+                        <span class="retrieval-score">得分: ${item.score || 'N/A'}</span>
+                        <div class="retrieval-content">${escapeHtml(item.content || '').substring(0, 200)}${(item.content || '').length > 200 ? '...' : ''}</div>
+                    </div>
+                `).join('');
+            } else {
+                retrievalHtml = '<div class="retrieval-item"><div class="retrieval-content">暂无检索结果</div></div>';
+            }
+            
+            panel.innerHTML = `
+                <div class="debug-header">
+                    <span>📋 调试信息</span>
+                    <span class="debug-toggle-icon">▶</span>
+                </div>
+                <div class="debug-content">
+                    <div class="debug-section">
+                        <div class="debug-section-title">检索结果 (${currentRetrievalResults.length}条)</div>
+                        <div class="debug-retrieval-results">${retrievalHtml}</div>
+                    </div>
+                    <div class="debug-section">
+                        <div class="debug-section-title">Prompt (发送给LLM)</div>
+                        <div class="debug-prompt">${escapeHtml(currentPrompt) || '暂无'}</div>
+                    </div>
+                </div>
+            `;
+            
+            return panel;
         }
         
         function addMessage(sender, content, isTyping = false) {

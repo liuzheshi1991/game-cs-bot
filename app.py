@@ -49,12 +49,13 @@ def chat_stream():
         question = data.get('question', '')
         mode = data.get('mode', 'hybrid')  # 默认使用混合检索
         top_k = data.get('top_k', 3)
+        debug = data.get('debug', False)  # 是否启用调试模式
         
         if not question:
             return jsonify({'error': '请输入问题'}), 400
         
         def generate():
-            for chunk in ask_with_rag_stream(question, top_k=top_k, retrieval_mode=mode):
+            for chunk in ask_with_rag_stream(question, top_k=top_k, retrieval_mode=mode, debug=debug):
                 yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
         
         return Response(generate(), mimetype='text/event-stream')

@@ -155,11 +155,14 @@ def ask_with_rag(question: str, top_k: int = 4, retrieval_mode: str = "text") ->
         }
 
 
-def ask_with_rag_stream(question: str, top_k: int = 3, retrieval_mode: str = "text"):
+def ask_with_rag_stream(question: str, top_k: int = 3, retrieval_mode: str = "text", debug: bool = False):
     """流式版本的 RAG 问答"""
     from rag.retriever import KnowledgeRetriever
     
     retriever = KnowledgeRetriever()
+    
+    # 存储检索结果用于调试
+    retrieval_results = []
     
     # 混合检索模式
     if retrieval_mode == "hybrid":
@@ -176,6 +179,13 @@ def ask_with_rag_stream(question: str, top_k: int = 3, retrieval_mode: str = "te
             if source_key not in seen_sources:
                 seen_sources.add(source_key)
                 merged_chunks.append(chunk)
+                # 记录检索结果用于调试
+                retrieval_results.append({
+                    'content': chunk.content,
+                    'source': chunk.source,
+                    'score': getattr(chunk, 'score', None),
+                    'mode': 'text'
+                })
         
         # 再添加向量检索结果（去重）
         for chunk in embedding_result.chunks:
@@ -183,6 +193,13 @@ def ask_with_rag_stream(question: str, top_k: int = 3, retrieval_mode: str = "te
             if source_key not in seen_sources:
                 seen_sources.add(source_key)
                 merged_chunks.append(chunk)
+                # 记录检索结果用于调试
+                retrieval_results.append({
+                    'content': chunk.content,
+                    'source': chunk.source,
+                    'score': getattr(chunk, 'score', None),
+                    'mode': 'embedding'
+                })
         
         # 取前 top_k 个
         merged_chunks = merged_chunks[:top_k]
@@ -195,6 +212,16 @@ def ask_with_rag_stream(question: str, top_k: int = 3, retrieval_mode: str = "te
         ))[:5]
     else:
         retrieval_result = retriever.search(question, top_k=top_k, mode=retrieval_mode)
+        
+        # 记录检索结果用于调试
+        for chunk in retrieval_result.chunks:
+            retrieval_results.append({
+                'content': chunk.content,
+                'source': chunk.source,
+                'score': getattr(chunk, 'score', None),
+                'mode': retrieval_mode
+            })
+        
         context = "\n\n".join([f"[片段{i+1}] 来源: {chunk.source}\n{chunk.content}" 
                               for i, chunk in enumerate(retrieval_result.chunks)])
         suggested_questions = retrieval_result.suggested_questions
@@ -211,6 +238,14 @@ def ask_with_rag_stream(question: str, top_k: int = 3, retrieval_mode: str = "te
             # 先返回检索信息
             yield {'type': 'info', 'retrieval_mode': retrieval_mode, 'suggested_questions': suggested_questions[:3]}
             
+            # 如果是调试模式，返回检索结果
+            if debug:
+                yield {'type': 'retrieval', 'results': retrieval_results}
+            
+            # 如果是调试模式，返回prompt
+            if debug:
+                yield {'type': 'prompt', 'content': user_prompt}
+            
             # 然后流式返回内容
             for chunk in _ask_with_ollama_stream(ollama_model, ollama_base_url, user_prompt):
                 yield chunk
@@ -220,6 +255,12 @@ def ask_with_rag_stream(question: str, top_k: int = 3, retrieval_mode: str = "te
             if not api_key:
                 yield {'type': 'error', 'data': "LLM_PROVIDER=openai 但未检测到 OPENAI_API_KEY"}
                 return
+            
+            # 如果是调试模式，返回检索结果和prompt
+            if debug:
+                yield {'type': 'retrieval', 'results': retrieval_results}
+                yield {'type': 'prompt', 'content': user_prompt}
+                
             answer = _ask_with_openai(os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip(), api_key, user_prompt)
             yield {'type': 'info', 'retrieval_mode': retrieval_mode, 'suggested_questions': suggested_questions[:3]}
             yield {'type': 'content', 'data': answer}
