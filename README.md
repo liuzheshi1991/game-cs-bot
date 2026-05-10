@@ -68,7 +68,7 @@ python app.py
 
 #### UI 界面截图：
 
-![客服机器人UI界面](https://github.com/liuzheshi1991/game-cs-bot/assets/xxx/xxxx)
+![客服机器人UI界面](assets/UI界面.png)
 
 界面包含：
 - 顶部标题栏
