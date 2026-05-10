@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>游戏客服机器人 - 调试模式</title>
+    <title>游戏客服中心</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f7fa;
             min-height: 100vh;
         }
         
         .chat-container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 15px;
             display: flex;
@@ -23,80 +23,80 @@
         }
         
         .chat-header {
-            background: rgba(255,255,255,0.95);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             border-radius: 16px 16px 0 0;
-            padding: 15px 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px 25px;
+            color: white;
         }
         
         .chat-header h1 {
-            color: #333;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         
         .chat-header p {
-            color: #666;
             font-size: 13px;
+            opacity: 0.9;
         }
         
         .header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 8px;
+            margin-top: 12px;
         }
         
         .mode-selector {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
         
         .mode-btn {
-            padding: 5px 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 18px;
-            background: white;
-            color: #666;
+            padding: 4px 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 16px;
+            background: rgba(255,255,255,0.1);
+            color: white;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             transition: all 0.2s ease;
         }
         
         .mode-btn.active {
-            border-color: #667eea;
-            background: #667eea;
-            color: white;
+            background: rgba(255,255,255,0.25);
+            border-color: rgba(255,255,255,0.5);
         }
         
         .debug-toggle {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             cursor: pointer;
         }
         
         .debug-toggle input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
         }
         
         .debug-toggle label {
-            font-size: 13px;
-            color: #666;
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
             cursor: pointer;
         }
         
         .chat-messages {
             flex: 1;
             overflow-y: auto;
-            background: rgba(255,255,255,0.98);
-            padding: 15px;
+            background: white;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
+            border-left: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
         }
         
         .message {
@@ -114,8 +114,8 @@
         .message.bot { justify-content: flex-start; }
         
         .avatar {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -124,57 +124,57 @@
         }
         
         .user .avatar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2563eb;
             color: white;
-            font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
+            font-weight: 500;
         }
         
         .bot .avatar {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            background: #10b981;
             color: white;
-            font-size: 16px;
+            font-size: 14px;
         }
         
         .message-content {
-            max-width: 75%;
-            padding: 10px 14px;
+            max-width: 70%;
+            padding: 12px 16px;
             border-radius: 18px;
             line-height: 1.6;
             font-size: 14px;
         }
         
         .user .message-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2563eb;
             color: white;
             border-radius: 18px 4px 18px 18px;
         }
         
         .bot .message-content {
-            background: #f1f3f4;
-            color: #333;
+            background: #f3f4f6;
+            color: #374151;
             border-radius: 4px 18px 18px 18px;
         }
         
         .retrieval-badge {
             display: inline-block;
             padding: 2px 8px;
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: #dcfce7;
+            color: #166534;
             border-radius: 8px;
             font-size: 11px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         
         .suggested-questions {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid #e0e0e0;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
         }
         
         .suggested-questions p {
             font-size: 11px;
-            color: #888;
+            color: #6b7280;
             margin-bottom: 6px;
         }
         
@@ -185,27 +185,27 @@
         }
         
         .suggested-tag {
-            padding: 3px 10px;
-            background: #e8f0fe;
-            color: #1967d2;
-            border-radius: 10px;
-            font-size: 11px;
+            padding: 4px 12px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 12px;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.15s ease;
         }
         
         .suggested-tag:hover {
-            background: #1967d2;
+            background: #1d4ed8;
             color: white;
         }
         
         /* 调试信息样式 */
         .debug-panel {
-            background: #f8f9fa;
-            border-radius: 12px;
+            background: #f9fafb;
+            border-radius: 10px;
             padding: 12px;
             margin-top: 10px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #e5e7eb;
             overflow: hidden;
         }
         
@@ -220,11 +220,11 @@
             cursor: pointer;
             font-size: 12px;
             font-weight: 500;
-            color: #666;
+            color: #6b7280;
         }
         
         .debug-header:hover {
-            color: #333;
+            color: #374151;
         }
         
         .debug-toggle-icon {
@@ -251,10 +251,10 @@
         
         .debug-section-title {
             font-weight: 600;
-            color: #333;
+            color: #374151;
             margin-bottom: 6px;
             padding-bottom: 4px;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e5e7eb;
         }
         
         .debug-retrieval-results {
@@ -267,7 +267,7 @@
             padding: 8px;
             border-radius: 8px;
             margin-bottom: 6px;
-            border-left: 3px solid #667eea;
+            border-left: 3px solid #2563eb;
             font-size: 11px;
         }
         
@@ -278,21 +278,21 @@
         .retrieval-score {
             float: right;
             font-size: 10px;
-            color: #666;
-            background: #f0f0f0;
+            color: #6b7280;
+            background: #f3f4f6;
             padding: 1px 5px;
-            border-radius: 10px;
+            border-radius: 8px;
         }
         
         .retrieval-content {
-            color: #444;
+            color: #4b5563;
             line-height: 1.5;
             word-break: break-all;
         }
         
         .debug-prompt {
-            background: #1a1a2e;
-            color: #e0e0e0;
+            background: #1f2937;
+            color: #e5e7eb;
             padding: 10px;
             border-radius: 8px;
             font-family: 'Consolas', 'Monaco', monospace;
@@ -305,10 +305,13 @@
         }
         
         .chat-input-area {
-            background: rgba(255,255,255,0.95);
+            background: white;
             border-radius: 0 0 16px 16px;
-            padding: 15px;
-            box-shadow: 0 -4px 6px rgba(0,0,0,0.1);
+            padding: 15px 20px;
+            border-left: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
         
         .input-row {
@@ -318,22 +321,25 @@
         
         .chat-input {
             flex: 1;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 22px;
+            padding: 12px 18px;
+            border: 1px solid #d1d5db;
+            border-radius: 24px;
             font-size: 14px;
             outline: none;
-            transition: border-color 0.2s ease;
+            transition: all 0.2s ease;
         }
         
-        .chat-input:focus { border-color: #667eea; }
+        .chat-input:focus { 
+            border-color: #2563eb; 
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
         
         .send-btn {
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: white;
             border: none;
-            border-radius: 22px;
+            border-radius: 24px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
@@ -342,7 +348,7 @@
         
         .send-btn:hover:not(:disabled) {
             transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(102,126,234,0.4);
+            box-shadow: 0 4px 14px rgba(37,99,235,0.3);
         }
         
         .send-btn:disabled {
@@ -353,13 +359,13 @@
         .typing-indicator {
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
         }
         
         .typing-dot {
-            width: 5px;
-            height: 5px;
-            background: #999;
+            width: 6px;
+            height: 6px;
+            background: #9ca3af;
             border-radius: 50%;
             animation: typing 1.4s infinite ease-in-out;
         }
@@ -373,6 +379,29 @@
             40% { opacity: 1; }
         }
         
+        .welcome-message {
+            text-align: center;
+            padding: 30px 20px;
+            color: #6b7280;
+        }
+        
+        .welcome-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .welcome-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-desc {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
         @media (max-width: 600px) {
             .message-content { max-width: 85%; }
             .chat-container { padding: 8px; }
@@ -383,13 +412,13 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <h1>🎮 游戏客服机器人</h1>
-            <p>欢迎咨询，我将为您提供专业的游戏客服服务</p>
+            <h1>🎮 游戏客服中心</h1>
+            <p>专业客服团队为您服务</p>
             <div class="header-row">
                 <div class="mode-selector">
                     <button class="mode-btn" data-mode="text">文本检索</button>
                     <button class="mode-btn" data-mode="embedding">向量检索</button>
-                    <button class="mode-btn active" data-mode="hybrid">混合检索</button>
+                    <button class="mode-btn active" data-mode="hybrid">智能检索</button>
                 </div>
                 <label class="debug-toggle">
                     <input type="checkbox" id="debug-toggle" checked>
@@ -399,32 +428,10 @@
         </div>
         
         <div class="chat-messages" id="chat-messages">
-            <div class="message bot">
-                <div class="avatar">🤖</div>
-                <div class="message-content">
-                    您好！我是游戏客服机器人，请问有什么可以帮助您的？
-                    <div class="debug-panel" id="welcome-debug">
-                        <div class="debug-header">
-                            <span>📋 调试信息</span>
-                            <span class="debug-toggle-icon">▶</span>
-                        </div>
-                        <div class="debug-content">
-                            <div class="debug-section">
-                                <div class="debug-section-title">检索结果</div>
-                                <div class="debug-retrieval-results">
-                                    <div class="retrieval-item">
-                                        <span class="retrieval-score">得分: N/A</span>
-                                        <div class="retrieval-content">初始状态，暂无检索结果</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="debug-section">
-                                <div class="debug-section-title">Prompt</div>
-                                <div class="debug-prompt">等待用户提问...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="welcome-message">
+                <div class="welcome-icon">👋</div>
+                <div class="welcome-title">欢迎来到游戏客服中心</div>
+                <div class="welcome-desc">请问有什么可以帮助您的？<br/>您可以咨询账号问题、充值问题、游戏玩法等</div>
             </div>
         </div>
         
@@ -457,7 +464,6 @@
             });
         });
         
-        // 调试面板折叠/展开
         document.addEventListener('click', (e) => {
             const header = e.target.closest('.debug-header');
             if (header) {
@@ -470,11 +476,11 @@
             const question = chatInput.value.trim();
             if (!question) return;
             
-            addMessage('user', question);
+            addUserMessage(question);
             chatInput.value = '';
             sendBtn.disabled = true;
             
-            const typingIndicator = addMessage('bot', '', true);
+            const typingIndicator = addTypingIndicator();
             
             try {
                 const response = await fetch('/api/chat/stream', {
@@ -491,7 +497,7 @@
                 typingIndicator.remove();
                 
                 if (!response.ok) {
-                    addMessage('bot', `❌ 请求失败：${response.status}`);
+                    addBotMessage(`请求失败：${response.status}`);
                     sendBtn.disabled = false;
                     return;
                 }
@@ -528,21 +534,19 @@
                                     if (data.retrieval_mode === 'embedding') {
                                         modeText = '向量检索';
                                     } else if (data.retrieval_mode === 'hybrid') {
-                                        modeText = '混合检索';
+                                        modeText = '智能检索';
                                     }
                                     badge.textContent = modeText;
                                     contentElement.insertBefore(badge, contentElement.firstChild);
                                     currentSuggestedQuestions = data.suggested_questions || [];
                                 } else if (data.type === 'retrieval') {
-                                    // 保存检索结果用于调试面板
                                     currentRetrievalResults = data.results || [];
                                 } else if (data.type === 'prompt') {
-                                    // 保存prompt用于调试面板
                                     currentPrompt = data.content || '';
                                 } else if (data.type === 'content') {
                                     contentElement.innerHTML += escapeHtml(data.data).replace(/\n/g, '<br>');
                                 } else if (data.type === 'error') {
-                                    contentElement.textContent = `❌ ${data.data}`;
+                                    contentElement.textContent = `错误：${data.data}`;
                                 }
                                 
                                 scrollToBottom();
@@ -553,7 +557,6 @@
                     }
                 }
                 
-                // 添加推荐问题
                 if (currentSuggestedQuestions.length > 0) {
                     const suggestedDiv = document.createElement('div');
                     suggestedDiv.className = 'suggested-questions';
@@ -568,7 +571,6 @@
                     contentElement.appendChild(suggestedDiv);
                 }
                 
-                // 添加调试面板
                 if (debugToggle.checked) {
                     const debugPanel = createDebugPanel();
                     contentElement.appendChild(debugPanel);
@@ -576,7 +578,7 @@
                 
             } catch (error) {
                 typingIndicator.remove();
-                addMessage('bot', `❌ 网络错误：${error.message}`);
+                addBotMessage(`网络错误：${error.message}`);
             }
             
             sendBtn.disabled = false;
@@ -610,7 +612,7 @@
                         <div class="debug-retrieval-results">${retrievalHtml}</div>
                     </div>
                     <div class="debug-section">
-                        <div class="debug-section-title">Prompt (发送给LLM)</div>
+                        <div class="debug-section-title">查询提示</div>
                         <div class="debug-prompt">${escapeHtml(currentPrompt) || '暂无'}</div>
                     </div>
                 </div>
@@ -619,26 +621,61 @@
             return panel;
         }
         
-        function addMessage(sender, content, isTyping = false) {
+        function addUserMessage(content) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
+            messageDiv.className = 'message user';
             
             const avatar = document.createElement('div');
             avatar.className = 'avatar';
-            avatar.textContent = sender === 'user' ? '👤' : '🤖';
+            avatar.textContent = '您';
             
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
-            
-            if (isTyping) {
-                contentDiv.innerHTML = '<div class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
-            } else {
-                contentDiv.innerHTML = formatMessage(content);
-            }
+            contentDiv.innerHTML = formatMessage(content);
             
             messageDiv.appendChild(avatar);
             messageDiv.appendChild(contentDiv);
             chatMessages.appendChild(messageDiv);
+            
+            scrollToBottom();
+        }
+        
+        function addBotMessage(content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = '客服';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = formatMessage(content);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            
+            scrollToBottom();
+        }
+        
+        function addTypingIndicator() {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = '客服';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = '<div class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            
+            scrollToBottom();
             
             return messageDiv;
         }
@@ -649,7 +686,7 @@
             
             const avatar = document.createElement('div');
             avatar.className = 'avatar';
-            avatar.textContent = '🤖';
+            avatar.textContent = '客服';
             
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
